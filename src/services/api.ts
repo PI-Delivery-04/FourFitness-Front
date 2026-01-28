@@ -323,7 +323,11 @@ export const workoutsAPI = {
   async toggleComplete(id: string): Promise<Workout> {
     try {
       const workout = await this.getById(id);
+<<<<<<< HEAD
       return await this.update(id, { concluido: !workout.concluido });
+=======
+      return await this.update(id, { completed: !workout.completed });
+>>>>>>> thaishome
     } catch (error) {
       console.error('API Error:', error);
       throw error;
