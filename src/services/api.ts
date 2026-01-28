@@ -56,15 +56,11 @@ export interface BMIData {
   userId?: string;
 }
 
-<<<<<<< HEAD
 // Mock de autenticação - substitua pela lógica real do seu backend
-=======
->>>>>>> thaishome
 const getCurrentUser = (): string | null => {
   return localStorage.getItem('userId') || 'mock-user-id';
 };
 
-<<<<<<< HEAD
 // Helper para headers
 const getHeaders = () => ({
   'Content-Type': 'application/json',
@@ -73,15 +69,6 @@ const getHeaders = () => ({
 });
 
 // === GOALS API ===
-=======
-
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  
-});
-
-
->>>>>>> thaishome
 
 export const goalsAPI = {
   // Listar todas as metas
