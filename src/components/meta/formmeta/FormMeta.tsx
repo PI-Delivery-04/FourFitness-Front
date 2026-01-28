@@ -1,171 +1,163 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { buscar, cadastrar, atualizar } from '../../../services/Services'
-import type Meta from '../../../models/Meta'
-import { ClipLoader } from 'react-spinners'
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useState, useEffect } from "react";
+import { X, Target, Calendar } from "lucide-react";
+import type Meta from "../../../models/Meta";
 
-function FormMeta() {
-
-    const navigate = useNavigate()
-    const { id } = useParams<{ id: string }>()
-
-    const [meta, setMeta] = useState<Meta>({
-        id: 0,
-        objetivo: '',
-        descricao: '',
-        peso: 0,
-        altura: 0,
-        validade: new Date(),
-        treino: null
-    } as Meta)
-
-    const [isLoading, setIsLoading] = useState(false)
-
-    async function buscarPorId(id: string) {
-        try {
-            await buscar(`/metas/${id}`, setMeta)
-        } catch {
-            alert('Erro ao buscar a meta')
-        }
-    }
-
-    useEffect(() => {
-        if (id !== undefined) buscarPorId(id)
-    }, [id])
-
-    function atualizarEstado(e: ChangeEvent<HTMLInputElement>) {
-        const { name, value } = e.target
-
-        setMeta({
-            ...meta,
-            [name]:
-                name === 'peso' || name === 'altura'
-                    ? Number(value)
-                    : name === 'validade'
-                        ? new Date(value)
-                        : value
-        })
-    }
-
-    function calcularIMC(peso: number, altura: number) {
-        const imc = peso / (altura * altura)
-        let classificacao = ''
-
-        if (imc < 18.5) classificacao = 'Abaixo do peso'
-        else if (imc < 25) classificacao = 'Peso normal'
-        else if (imc < 30) classificacao = 'Sobrepeso'
-        else if (imc < 35) classificacao = 'Obesidade Grau I'
-        else if (imc < 40) classificacao = 'Obesidade Grau II'
-        else classificacao = 'Obesidade Grau III'
-
-        return { imc: Number(imc.toFixed(2)), classificacao }
-    }
-
-    async function gerarNovaMeta(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault()
-        setIsLoading(true)
-
-        const { imc, classificacao } = calcularIMC(meta.peso, meta.altura)
-
-        const metaFinal: Meta = {
-            ...meta,
-            imc,
-            classificacao
-        }
-
-        try {
-            if (id !== undefined) {
-                await atualizar('/metas', metaFinal, setMeta)
-                alert('Meta atualizada com sucesso!')
-            } else {
-                await cadastrar('/metas', metaFinal, setMeta)
-                alert('Meta cadastrada com sucesso!')
-            }
-
-            navigate('/metas')
-        } catch {
-            alert('Erro ao salvar a meta')
-        }
-
-        setIsLoading(false)
-    }
-
-    return (
-        <div className="container flex flex-col items-center justify-center mx-auto">
-            <h1 className="text-4xl my-8">
-                {id ? 'Editar Meta' : 'Cadastrar Meta'}
-            </h1>
-
-            <form className="w-1/2 flex flex-col gap-4" onSubmit={gerarNovaMeta}>
-
-                <input
-                    type="text"
-                    name="objetivo"
-                    placeholder="Objetivo da meta"
-                    className="border-2 border-slate-700 rounded p-2"
-                    value={meta.objetivo}
-                    onChange={atualizarEstado}
-                    required
-                />
-
-                <input
-                    type="text"
-                    name="descricao"
-                    placeholder="Descrição"
-                    className="border-2 border-slate-700 rounded p-2"
-                    value={meta.descricao}
-                    onChange={atualizarEstado}
-                    required
-                />
-
-                <input
-                    type="number"
-                    name="peso"
-                    placeholder="Peso (kg)"
-                    className="border-2 border-slate-700 rounded p-2"
-                    value={meta.peso}
-                    onChange={atualizarEstado}
-                    required
-                />
-
-                <input
-                    type="number"
-                    step="0.01"
-                    name="altura"
-                    placeholder="Altura (m)"
-                    className="border-2 border-slate-700 rounded p-2"
-                    value={meta.altura}
-                    onChange={atualizarEstado}
-                    required
-                />
-
-                <input
-                    type="date"
-                    name="validade"
-                    className="border-2 border-slate-700 rounded p-2"
-                    value={meta.validade.toISOString().split('T')[0]}
-                    onChange={atualizarEstado}
-                    required
-                />
-
-                {meta.imc && (
-                    <div className="text-center font-semibold">
-                        IMC: {meta.imc} — {meta.classificacao}
-                    </div>
-                )}
-
-                <button
-                    type="submit"
-                    className="rounded bg-indigo-400 hover:bg-indigo-800 text-white py-2"
-                >
-                    {isLoading
-                        ? <ClipLoader color="#fff" size={24} />
-                        : 'Salvar'}
-                </button>
-
-            </form>
-        </div>
-    )
+interface FormMetaProps {
+  meta: Meta | null;
+  onSave: (meta: Omit<Meta, "id">) => void;
+  onClose: () => void;
 }
 
-export default FormMeta
+export function FormMeta({ meta, onSave, onClose }: FormMetaProps) {
+  const [formData, setFormData] = useState({
+    objetivo: "",
+    descricao: "",
+    peso: "",
+    altura: "",
+    validade: "",
+  });
+
+  useEffect(() => {
+    if (meta) {
+      setFormData({
+        objetivo: meta.objetivo,
+        descricao: meta.descricao || "",
+        peso: meta.peso.toString(),
+        altura: meta.altura.toString(),
+        validade: meta.validade || "",
+      });
+    }
+  }, [meta]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const metaFinal: Omit<Meta, "id"> = {
+      objetivo: formData.objetivo,
+      descricao: formData.descricao,
+      peso: parseFloat(formData.peso),
+      altura: parseFloat(formData.altura),
+      validade: formData.validade,
+      treino: null,
+    };
+
+    onSave(metaFinal);
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-3xl shadow-2xl border border-orange-700/15 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 border-b border-orange-700/25">
+          <div className="flex items-center gap-3">
+            <Target className="w-6 h-6 text-white" />
+            <h2 className="text-2xl font-bold text-white">
+              {meta ? "Editar Meta" : "Nova Meta"}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/20 rounded-xl transition-all"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <div>
+            <label className="block font-semibold text-gray-300 mb-3">
+              Objetivo *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.objetivo}
+              onChange={(e) => handleChange("objetivo", e.target.value)}
+              placeholder="Ex: Perder peso, Ganhar massa..."
+              className="w-full px-5 py-4 rounded-xl border-2 border-orange-700/25 bg-zinc-800 text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-gray-300 mb-3">
+              Descrição
+            </label>
+            <textarea
+              value={formData.descricao}
+              onChange={(e) => handleChange("descricao", e.target.value)}
+              placeholder="Detalhe sua meta..."
+              rows={3}
+              className="w-full px-5 py-4 rounded-xl border-2 border-orange-700/25 bg-zinc-800 text-white"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block font-semibold text-gray-300 mb-3">
+                Peso (kg) *
+              </label>
+              <input
+                type="number"
+                required
+                value={formData.peso}
+                onChange={(e) => handleChange("peso", e.target.value)}
+                placeholder="70"
+                className="w-full px-5 py-4 rounded-xl border-2 border-orange-700/25 bg-zinc-800 text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-300 mb-3">
+                Altura (m) *
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                value={formData.altura}
+                onChange={(e) => handleChange("altura", e.target.value)}
+                placeholder="1.70"
+                className="w-full px-5 py-4 rounded-xl border-2 border-orange-700/25 bg-zinc-800 text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-gray-300 mb-3">
+              <Calendar className="w-4 h-4 text-orange-600 inline mr-2" />
+              Prazo
+            </label>
+            <input
+              type="date"
+              value={formData.validade}
+              onChange={(e) => handleChange("validade", e.target.value)}
+              className="w-full px-5 py-4 rounded-xl border-2 border-orange-700/25 bg-zinc-800 text-white"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-4 pt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-4 bg-zinc-800 text-gray-300 rounded-xl font-semibold hover:bg-zinc-700 transition-all border border-zinc-700"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-6 py-4 bg-gradient-to-r from-orange-700 to-orange-800 text-white rounded-xl font-semibold hover:shadow-xl hover:shadow-orange-900/30 transition-all hover:scale-105 active:scale-95"
+            >
+              {meta ? "Atualizar Meta" : "Criar Meta"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
