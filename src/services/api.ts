@@ -5,11 +5,11 @@ export const api = axios.create({
 });
 
 export const metasAPI = {
-  listar: async () => (await api.get("/metas")).data,
-  getById: async (id: string) => (await api.get(`/metas/${id}`)).data,
-  create: async (meta: any) => (await api.post("/metas", meta)).data,
-  update: async (id: number, meta: any) => (await api.put(`/metas/${id}`, meta)).data,
-  delete: async (id: string) => (await api.delete(`/metas/${id}`)).data,
+  listar: async () => (await api.get("/meta")).data,
+  getById: async (id: string) => (await api.get(`/meta/${id}`)).data,
+  create: async (meta: any) => (await api.post("/meta", meta)).data,
+  update: async (meta: any) => (await api.put(`/meta`, meta)).data,
+  delete: async (id: string) => (await api.delete(`/meta/${id}`)).data,
 };
 
 export const workoutsAPI = {

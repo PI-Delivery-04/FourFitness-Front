@@ -43,24 +43,48 @@ export function Home() {
     }
   };
 
-  const calcularIMC = async () => {
+  // const calcularIMC = async () => {
+  //   const w = parseFloat(peso);
+  //   const h = parseFloat(altura);
+  //   if (w > 0 && h > 0) {
+  //     try {
+  //       const result = await bmiAPI.calculate(w, h);
+  //       setImc(result.bmi);
+  //       localStorage.setItem(
+  //         "bmi",
+  //         JSON.stringify({ weight: w, height: h, bmi: result.bmi }),
+  //       );
+  //     } catch (error) {
+  //       console.error("Erro ao calcular IMC:", error);
+  //     }
+  //   }
+  // };
+  const calcularIMC = () => {
     const w = parseFloat(peso);
     const h = parseFloat(altura);
+
     if (w > 0 && h > 0) {
-      try {
-        const result = await bmiAPI.calculate(w, h);
-        setImc(result.bmi);
-        localStorage.setItem(
-          "bmi",
-          JSON.stringify({ weight: w, height: h, bmi: result.bmi }),
-        );
-      } catch (error) {
-        console.error("Erro ao calcular IMC:", error);
-      }
+      // se a altura vier em cm, converte para metros
+      const alturaEmMetros = h > 3 ? h / 100 : h;
+
+      const bmi = w / (alturaEmMetros * alturaEmMetros);
+
+      const bmiFormatado = Number(bmi.toFixed(2));
+
+      setImc(bmiFormatado);
+
+      localStorage.setItem(
+        "bmi",
+        JSON.stringify({
+          weight: w,
+          height: alturaEmMetros,
+          bmi: bmiFormatado,
+        })
+      );
     }
   };
 
-  const metasAtivas = metas; 
+  const metasAtivas = metas;
   const treinosConcluidos = treinos.filter((t) => t.concluido).length;
   const treinosSemana = treinos.filter((t) => {
     const date = new Date(t.data);
@@ -69,7 +93,7 @@ export function Home() {
     return date >= weekAgo;
   }).length;
 
-  
+
   const progressoMedio = metas.length;
 
   const getBMICategory = (bmi: number) => {
@@ -278,17 +302,12 @@ export function Home() {
                   >
                     <div>
                       <h3 className="font-semibold text-white group-hover:text-orange-600 transition-colors">
-                        {meta.objetivo}
+                        {meta.meta}
                       </h3>
-                      {meta.descricao && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          {meta.descricao}
-                        </p>
-                      )}
                     </div>
-                    {meta.validade && (
+                    {meta.data_limite && (
                       <span className="text-sm font-bold text-orange-600 bg-orange-700/20 px-3 py-1 rounded-lg">
-                        {new Date(meta.validade).toLocaleDateString("pt-BR", {
+                        {new Date(meta.data_limite).toLocaleDateString("pt-BR", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
@@ -307,7 +326,7 @@ export function Home() {
               </div>
             )}
           </div>
-          
+
           <div className="bg-zinc-900 rounded-3xl p-8 shadow-lg border border-orange-700/15">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
               <div className="p-2 bg-orange-700/20 rounded-xl">
