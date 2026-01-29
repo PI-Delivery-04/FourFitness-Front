@@ -12,15 +12,21 @@ export default function Navbar() {
 
   return (
     <nav className="bg-zinc-900 border-b border-orange-700/20 sticky top-0 z-50 shadow-md shadow-orange-900/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-5 sm:px-5 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center gap-3 group cursor-pointer">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-700 to-orange-800 rounded-2xl blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative bg-gradient-to-br from-orange-700 to-orange-800 rounded-2xl p-3 transform group-hover:scale-105 transition-transform">
-                <Activity className="w-7 h-7 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-700 to-orange-800 rounded-2xl blur-md opacity-0 group-hover:opacity-0 transition-opacity" />
+              
+              {/* <div className="w-10 h-10 bg-white-500/90 rounded-xl flex items-center justify-center shadow-sm"> */}
+              {/* <img src="https://ik.imagekit.io/f9nzlij8o/Design%20sem%20nome%20(2).png" alt="Logo Personalizada" className="w-20 h-20 object-contain rounded-full"/>  */}
+              {/* </div> */}
+
+              <div className="w-20 h-20 bg-white500/90 rounded-2xl flex items-center justify-center shadow-md">
+              <img src="https://ik.imagekit.io/f9nzlij8o/Design%20sem%20nome%20(2).png" alt="Logo" className="w-20 h-20 object-contain rounded-lg" />
               </div>
+
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
@@ -42,10 +48,9 @@ export default function Navbar() {
                   to={item.path}
                   className={`
                     flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-200
-                    ${
-                      isActive
-                        ? "bg-gradient-to-r from-orange-700 to-orange-800 text-white shadow-lg shadow-orange-900/20 scale-105"
-                        : "text-gray-400 hover:bg-zinc-800 hover:text-orange-600 hover:scale-105"
+                    ${isActive
+                      ? "bg-gradient-to-r from-orange-700 to-orange-800 text-white shadow-lg shadow-orange-900/20 scale-105"
+                      : "text-gray-400 hover:bg-zinc-800 hover:text-orange-600 hover:scale-105"
                     }
                   `}
                 >
