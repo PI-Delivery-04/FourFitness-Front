@@ -239,9 +239,9 @@ export function Home() {
                       <h3 className="font-semibold text-white group-hover:text-orange-600 transition-colors">
                         {meta.meta}
                       </h3>
-                      {meta.descricao && (
+                      {/* {meta.descricao && (
                         <p className="text-sm text-gray-500 mt-1">{meta.descricao}</p>
-                      )}
+                      )} */}
                     </div>
                     {meta.data_limite && (
                       <span className="text-sm font-bold text-orange-600 bg-orange-700/20 px-3 py-1 rounded-lg">

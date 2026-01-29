@@ -3,7 +3,7 @@ import { Target, Plus, Edit2, Trash2, Calendar, Loader } from "lucide-react";
 import { metasAPI } from "../../../services/api";
 import type Meta from "../../../models/Meta";
 import { FormMeta } from "../formmeta/FormMeta";
-import { showError, showSuccess } from "../../../utils/Toast";
+import { showError, showSuccess } from "../../../utils/toast";
 
 export default function ListaMetas() {
   const [metas, setMetas] = useState<Meta[]>([]);
@@ -15,11 +15,22 @@ export default function ListaMetas() {
     carregarMetas();
   }, []);
 
+  const ordenarMetasPorData = (metas: Meta[]) =>
+    [...metas].sort((a, b) => {
+      if (!a.data_limite) return 1;
+      if (!b.data_limite) return -1;
+      return (
+        new Date(a.data_limite).getTime() -
+        new Date(b.data_limite).getTime()
+      );
+    });
+
+
   const carregarMetas = async () => {
     try {
       setLoading(true);
       const dados = await metasAPI.listar();
-      setMetas(dados);
+      setMetas(ordenarMetasPorData(dados));
     } catch (error) {
       console.error("Erro ao carregar metas:", error);
     } finally {
@@ -27,37 +38,37 @@ export default function ListaMetas() {
     }
   };
 
-const handleSave = async (meta: Meta) => {
-  try {
-    if (meta.id && meta.id !== 0) {
-      await metasAPI.update(meta);
-      showSuccess("Meta atualizada com sucesso");   // <-- toast sucesso
-    } else {
-      await metasAPI.create(meta);
-      showSuccess("Meta criada com sucesso");       // <-- toast sucesso
-    }
-
-    await carregarMetas();
-    setShowForm(false);
-    setMetaEmEdicao(null);
-  } catch (error) {
-    showError("Erro ao salvar meta.");              // <-- toast erro
-  }
-};
-
-
-
-const excluirMeta = async (id: string) => {
-  if (confirm("Tem certeza que deseja excluir esta meta?")) {
+  const handleSave = async (meta: Meta) => {
     try {
-      await metasAPI.delete(id);
-      showSuccess("Meta excluída com sucesso");     // <-- toast sucesso
+      if (meta.id && meta.id !== 0) {
+        await metasAPI.update(meta);
+        showSuccess("Meta atualizada com sucesso");   // <-- toast sucesso
+      } else {
+        await metasAPI.create(meta);
+        showSuccess("Meta criada com sucesso");       // <-- toast sucesso
+      }
+
       await carregarMetas();
+      setShowForm(false);
+      setMetaEmEdicao(null);
     } catch (error) {
-      showError("Erro ao deletar meta.");           // <-- toast erro
+      showError("Erro ao salvar meta.");              // <-- toast erro
     }
-  }
-};
+  };
+
+
+
+  const excluirMeta = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta meta?")) {
+      try {
+        await metasAPI.delete(id);
+        showSuccess("Meta excluída com sucesso");     // <-- toast sucesso
+        await carregarMetas();
+      } catch (error) {
+        showError("Erro ao deletar meta.");           // <-- toast erro
+      }
+    }
+  };
 
 
   const editarMeta = (meta: Meta) => {
